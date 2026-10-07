@@ -67,8 +67,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Jalankan Server
-if (process.env.NODE_ENV !== 'test') {
+// Jalankan Server (hanya saat mode standalone lokal / bukan serverless Vercel)
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`=======================================================`);
     console.log(`🏥 E-UKS - Sistem Informasi UKS & Rekam Medis Siswa`);
