@@ -1,0 +1,90 @@
+<%- include('../partials/header') %>
+
+<div class="flex min-h-screen">
+  <%- include('../partials/sidebar') %>
+
+  <div class="flex-1 flex flex-col min-w-0">
+    <%- include('../partials/navbar') %>
+
+    <main class="flex-1 p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
+      
+      <!-- Top Action Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <span class="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-teal-100 text-teal-800">
+            <i class="fa-solid fa-kit-medical text-[10px]"></i>
+            <span>Layanan Pertolongan Pertama (P3K)</span>
+          </span>
+          <h1 class="text-2xl font-extrabold text-slate-900 mt-2">
+            Ketersediaan Obat-Obatan & Fasilitas P3K UKS
+          </h1>
+          <p class="text-sm text-slate-500 mt-0.5">
+            Daftar persediaan obat-obatan bebas dan peralatan medis yang siap digunakan saat siswa membutuhkan pertolongan darurat.
+          </p>
+        </div>
+
+        <a href="/siswa/dashboard" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm self-start sm:self-auto">
+          <i class="fa-solid fa-arrow-left mr-1"></i> Kembali ke Dashboard
+        </a>
+      </div>
+
+      <%- include('../partials/alerts') %>
+
+      <!-- Grid Cards Obat-Obatan P3K -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <% if (medicines && medicines.length > 0) { %>
+          <% medicines.forEach(med => { %>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <% if (med.kategori === 'TABLET') { %>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">TABLET</span>
+                  <% } else if (med.kategori === 'SIRUP') { %>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">SIRUP / CAIRAN</span>
+                  <% } else if (med.kategori === 'SALEP') { %>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">SALEP KULIT</span>
+                  <% } else { %>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">ALAT MEDIS P3K</span>
+                  <% } %>
+
+                  <% if (med.stok > 0) { %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Tersedia di UKS
+                    </span>
+                  <% } else { %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">
+                      <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5"></span> Stok Kosong
+                    </span>
+                  <% } %>
+                </div>
+
+                <h3 class="text-base font-bold text-slate-900"><%= med.namaObat %></h3>
+                
+                <p class="text-xs text-slate-600 mt-2 line-clamp-3">
+                  <strong>Indikasi:</strong> <%= med.aturanPakai || 'Pertolongan pertama medis sekolah' %>
+                </p>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                <span class="flex items-center space-x-1">
+                  <i class="fa-solid fa-boxes-packing text-slate-400"></i>
+                  <span><%= med.lokasiRak || 'Lemari UKS' %></span>
+                </span>
+                <span class="font-semibold text-slate-700">
+                  <%= med.stok > 0 ? `${med.stok} ${med.satuan} siap` : 'Sedang pengadaan' %>
+                </span>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="col-span-3 py-12 text-center text-slate-400">
+            Belum ada inventaris obat yang terdaftar.
+          </div>
+        <% } %>
+      </div>
+
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+</div>

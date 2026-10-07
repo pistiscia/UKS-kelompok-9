@@ -1,0 +1,142 @@
+<%- include('../partials/header') %>
+
+<div class="flex min-h-screen">
+  <%- include('../partials/sidebar') %>
+
+  <div class="flex-1 flex flex-col min-w-0">
+    <%- include('../partials/navbar') %>
+
+    <main class="flex-1 p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
+      
+      <!-- Top Action Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <span class="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-800">
+            <i class="fa-solid fa-clock-rotate-left text-[10px]"></i>
+            <span>Rekam Medis Personal</span>
+          </span>
+          <h1 class="text-2xl font-extrabold text-slate-900 mt-2">
+            Riwayat Pemeriksaan & Kunjungan UKS
+          </h1>
+          <p class="text-sm text-slate-500 mt-0.5">
+            Daftar lengkap seluruh kunjungan Anda ke ruang UKS, hasil pemeriksaan tanda vital, dan obat yang diterima.
+          </p>
+        </div>
+
+        <a href="/siswa/dashboard" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm self-start sm:self-auto">
+          <i class="fa-solid fa-arrow-left mr-1"></i> Kembali ke Dashboard
+        </a>
+      </div>
+
+      <%- include('../partials/alerts') %>
+
+      <!-- Table Rekam Medis -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200">
+              <tr>
+                <th class="px-5 py-3.5">Waktu Kunjungan</th>
+                <th class="px-5 py-3.5">Keluhan Fisik</th>
+                <th class="px-5 py-3.5">Suhu & Tensi</th>
+                <th class="px-5 py-3.5">Tindakan Pertolongan</th>
+                <th class="px-5 py-3.5">Obat P3K Diberikan</th>
+                <th class="px-5 py-3.5">Petugas Medis</th>
+                <th class="px-5 py-3.5 text-center">Status Akhir</th>
+                <th class="px-5 py-3.5 text-right">Surat Izin</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <% if (records && records.length > 0) { %>
+                <% records.forEach(rec => { %>
+                  <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-5 py-4 whitespace-nowrap">
+                      <div class="font-bold text-slate-900">
+                        <%= new Date(rec.tglKunjungan).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) %>
+                      </div>
+                      <div class="font-mono text-[11px] text-slate-400">
+                        Pkl <%= rec.jamMasuk %> WIB
+                      </div>
+                    </td>
+
+                    <td class="px-5 py-4 max-w-xs">
+                      <div class="font-semibold text-slate-800"><%= rec.keluhan %></div>
+                    </td>
+
+                    <td class="px-5 py-4 whitespace-nowrap">
+                      <div class="font-bold <%= rec.suhuTubuh >= 37.5 ? 'text-rose-600' : 'text-slate-700' %>">
+                        <i class="fa-solid fa-temperature-half mr-0.5"></i> <%= rec.suhuTubuh %>°C
+                      </div>
+                      <div class="text-[10px] text-slate-400">Tensi: <%= rec.tensi || '-' %></div>
+                    </td>
+
+                    <td class="px-5 py-4 text-slate-600 max-w-xs">
+                      <%= rec.tindakan %>
+                    </td>
+
+                    <td class="px-5 py-4">
+                      <% if (rec.prescriptions && rec.prescriptions.length > 0) { %>
+                        <% rec.prescriptions.forEach(p => { %>
+                          <span class="inline-block bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded text-[10px] font-medium mr-1 mb-1">
+                            <%= p.medicine.namaObat %> (<%= p.jumlah %>)
+                          </span>
+                        <% }) %>
+                      <% } else { %>
+                        <span class="text-slate-400 italic text-[11px]">-</span>
+                      <% } %>
+                    </td>
+
+                    <td class="px-5 py-4 whitespace-nowrap text-slate-600">
+                      <span class="font-medium text-slate-800"><%= rec.petugas.nama %></span>
+                    </td>
+
+                    <td class="px-5 py-4 text-center whitespace-nowrap">
+                      <% if (rec.status === 'KEMBALI_KELAS') { %>
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                          Kembali Kelas
+                        </span>
+                      <% } else if (rec.status === 'DIRAWAT') { %>
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                          Dirawat
+                        </span>
+                      <% } else if (rec.status === 'PULANG') { %>
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">
+                          Izin Pulang
+                        </span>
+                      <% } else if (rec.status === 'DIRUJUK') { %>
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">
+                          Dirujuk Puskesmas
+                        </span>
+                      <% } %>
+                    </td>
+
+                    <td class="px-5 py-4 text-right whitespace-nowrap">
+                      <% if (rec.noSurat) { %>
+                        <a href="/siswa/surat/<%= rec.id %>" class="px-3 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold text-[11px] border border-purple-200 transition-colors inline-flex items-center space-x-1">
+                          <i class="fa-solid fa-file-pdf"></i>
+                          <span>Lihat Surat</span>
+                        </a>
+                      <% } else { %>
+                        <span class="text-slate-400 text-[10px]">-</span>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="8" class="px-5 py-12 text-center text-slate-400">
+                    <i class="fa-solid fa-folder-open text-3xl mb-2 text-slate-300"></i>
+                    <p class="font-semibold text-slate-600">Belum ada catatan rekam medis kunjungan.</p>
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+</div>

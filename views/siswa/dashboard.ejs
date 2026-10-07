@@ -1,0 +1,258 @@
+<%- include('../partials/header') %>
+
+<div class="flex min-h-screen">
+  <%- include('../partials/sidebar') %>
+
+  <div class="flex-1 flex flex-col min-w-0">
+    <%- include('../partials/navbar') %>
+
+    <main class="flex-1 p-6 md:p-8 space-y-8 max-w-7xl w-full mx-auto">
+      
+      <!-- Welcome Header -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <span class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-800">
+            <i class="fa-solid fa-graduation-cap text-[10px]"></i>
+            <span>Portal Rekam Medis Siswa</span>
+          </span>
+          <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 mt-2">
+            Halo, <%= student.nama %>!
+          </h1>
+          <p class="text-sm text-slate-500 mt-0.5">
+            Pantau status pemeriksaan ruang UKS, rekam medis kesehatan pribadi, dan riwayat alergi obat Anda.
+          </p>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <a href="/siswa/profil-kesehatan" class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-600/30 transition-all">
+            <i class="fa-solid fa-shield-virus"></i>
+            <span>Perbarui Riwayat Alergi</span>
+          </a>
+          <a href="/siswa/riwayat" class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>Riwayat Kunjungan</span>
+          </a>
+        </div>
+      </div>
+
+      <%- include('../partials/alerts') %>
+
+      <!-- FEATURE 12: STATUS IZIN ISTIRAHAT UKS DIGITAL AKTIF -->
+      <div class="bg-white rounded-3xl border border-slate-200/80 shadow-md p-6 sm:p-8">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-slate-100">
+          <div class="flex items-center space-x-4">
+            <div class="w-14 h-14 rounded-2xl <%= isCurrentlyTreated ? 'bg-amber-500 animate-pulse text-white' : (latestRecord ? 'bg-teal-500 text-white' : 'bg-slate-100 text-slate-400') %> flex items-center justify-center text-2xl shadow-sm">
+              <i class="fa-solid <%= isCurrentlyTreated ? 'fa-bed-pulse' : 'fa-id-card-clip' %>"></i>
+            </div>
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Status Izin UKS Digital Saya</span>
+              <h2 class="text-xl font-black text-slate-900 mt-0.5">
+                <% if (!latestRecord) { %>
+                  Belum Pernah Berkunjung ke UKS
+                <% } else if (latestRecord.status === 'DIRAWAT') { %>
+                  Sedang Beristirahat di Ruang UKS
+                <% } else if (latestRecord.status === 'KEMBALI_KELAS') { %>
+                  Selesai Penanganan • Telah Kembali ke Kelas
+                <% } else if (latestRecord.status === 'PULANG') { %>
+                  Mendapatkan Izin Istirahat / Pulang ke Rumah
+                <% } else if (latestRecord.status === 'DIRUJUK') { %>
+                  Dirujuk ke Puskesmas / Rumah Sakit
+                <% } %>
+              </h2>
+            </div>
+          </div>
+
+          <!-- Status Badge -->
+          <% if (latestRecord) { %>
+            <div>
+              <% if (latestRecord.status === 'DIRAWAT') { %>
+                <span class="inline-flex items-center px-4 py-2 rounded-2xl text-xs font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping mr-2"></span> SEDANG DIRAWAT (BED UKS)
+                </span>
+              <% } else if (latestRecord.status === 'KEMBALI_KELAS') { %>
+                <span class="inline-flex items-center px-4 py-2 rounded-2xl text-xs font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300">
+                  <i class="fa-solid fa-circle-check text-emerald-600 mr-2"></i> KEMBALI KE KELAS
+                </span>
+              <% } else if (latestRecord.status === 'PULANG') { %>
+                <span class="inline-flex items-center px-4 py-2 rounded-2xl text-xs font-extrabold bg-rose-100 text-rose-900 border border-rose-300">
+                  <i class="fa-solid fa-house-chimney-medical text-rose-600 mr-2"></i> IZIN PULANG RESMI
+                </span>
+              <% } else if (latestRecord.status === 'DIRUJUK') { %>
+                <span class="inline-flex items-center px-4 py-2 rounded-2xl text-xs font-extrabold bg-purple-100 text-purple-900 border border-purple-300">
+                  <i class="fa-solid fa-truck-medical text-purple-600 mr-2"></i> RUJUKAN PUSKESMAS
+                </span>
+              <% } %>
+            </div>
+          <% } %>
+        </div>
+
+        <% if (latestRecord) { %>
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/60">
+              <span class="text-[10px] font-bold uppercase text-slate-400">Waktu Kunjungan</span>
+              <div class="font-bold text-slate-900 text-sm mt-1">
+                <%= new Date(latestRecord.tglKunjungan).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' }) %>
+              </div>
+              <div class="text-xs text-slate-500 font-mono mt-0.5">
+                Masuk: <%= latestRecord.jamMasuk %> WIB
+              </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/60">
+              <span class="text-[10px] font-bold uppercase text-slate-400">Suhu & Tensi</span>
+              <div class="font-bold text-sm mt-1 <%= latestRecord.suhuTubuh >= 37.5 ? 'text-rose-600' : 'text-slate-900' %>">
+                <%= latestRecord.suhuTubuh %> °C
+              </div>
+              <div class="text-xs text-slate-500 mt-0.5">
+                Tekanan: <%= latestRecord.tensi || '-' %>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 md:col-span-2 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase text-slate-400">Keluhan & Pertolongan Pertama</span>
+                <p class="text-xs font-semibold text-slate-800 line-clamp-1 mt-1"><%= latestRecord.keluhan %></p>
+                <p class="text-[11px] text-slate-500 line-clamp-1 mt-0.5"><%= latestRecord.tindakan %></p>
+              </div>
+
+              <% if (latestRecord.noSurat) { %>
+                <div class="mt-3 pt-2 border-t border-slate-200 flex items-center justify-between">
+                  <span class="text-[11px] font-mono text-purple-700 font-bold"><%= latestRecord.noSurat %></span>
+                  <a href="/siswa/surat/<%= latestRecord.id %>" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center">
+                    <i class="fa-solid fa-file-pdf mr-1"></i> Buka Surat Digital
+                  </a>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        <% } else { %>
+          <div class="mt-6 text-center py-6 text-slate-400">
+            <i class="fa-solid fa-heart-circle-check text-4xl text-emerald-400 mb-2"></i>
+            <p class="text-sm font-semibold text-slate-700">Anda belum memiliki riwayat kunjungan sakit ke ruang UKS.</p>
+            <p class="text-xs text-slate-400">Tetap jaga kesehatan, pola makan, dan hidrasi selama beraktivitas di sekolah!</p>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Grid 2 Kolom: Kartu Profil Alergi & Riwayat Kunjungan -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Kolom Kiri: Profil Kesehatan & Alergi Siswa (1/3) -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-5">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+              <i class="fa-solid fa-shield-virus text-rose-500"></i>
+              <span>Profil Alergi & Kesehatan</span>
+            </h3>
+            <a href="/siswa/profil-kesehatan" class="text-xs font-bold text-blue-600 hover:underline">
+              Ubah Data
+            </a>
+          </div>
+
+          <% const hp = student.healthProfile || {}; %>
+
+          <!-- Alert Alergi Obat PENTING -->
+          <div class="p-4 rounded-2xl <%= hp.alergiObat ? 'bg-rose-50 border border-rose-200 text-rose-900' : 'bg-slate-50 border border-slate-200 text-slate-700' %>">
+            <span class="text-[10px] font-bold uppercase tracking-wider block text-rose-600">
+              <i class="fa-solid fa-triangle-exclamation mr-1"></i> Riwayat Alergi Obat
+            </span>
+            <p class="text-xs font-bold mt-1">
+              <%= hp.alergiObat || 'Tidak ada riwayat alergi obat' %>
+            </p>
+            <p class="text-[10px] text-slate-500 mt-1">Petugas UKS akan selalu memeriksa data ini sebelum memberikan obat.</p>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div>
+              <span class="text-slate-400 font-semibold block text-[11px]">Riwayat Penyakit Bawaan:</span>
+              <p class="font-bold text-slate-800 mt-0.5"><%= hp.riwayatPenyakit || 'Tidak ada' %></p>
+            </div>
+            <div>
+              <span class="text-slate-400 font-semibold block text-[11px]">Alergi Makanan:</span>
+              <p class="font-bold text-slate-800 mt-0.5"><%= hp.alergiMakanan || 'Tidak ada' %></p>
+            </div>
+            <div>
+              <span class="text-slate-400 font-semibold block text-[11px]">Kontak Darurat Orang Tua / Wali:</span>
+              <p class="font-bold text-slate-800 mt-0.5"><%= hp.kontakDarurat || student.teleponOrtu || '-' %></p>
+            </div>
+            <div>
+              <span class="text-slate-400 font-semibold block text-[11px]">Golongan Darah:</span>
+              <span class="inline-block mt-0.5 px-2.5 py-0.5 rounded-lg bg-red-50 text-red-700 font-extrabold border border-red-200">
+                <%= student.golonganDarah || 'Belum diisi' %>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kolom Kanan: Riwayat Kunjungan Singkat (2/3) -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                <i class="fa-solid fa-notes-medical text-teal-600"></i>
+                <span>Riwayat Rekam Medis Kunjungan Terakhir</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">Total Kunjungan Tercatat: <strong class="text-slate-800"><%= totalVisits %> kali</strong></p>
+            </div>
+            <a href="/siswa/riwayat" class="text-xs font-bold text-brand-600 hover:text-brand-700">
+              Lihat Riwayat Lengkap <i class="fa-solid fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+
+          <div class="space-y-3">
+            <% if (recentRecords && recentRecords.length > 0) { %>
+              <% recentRecords.forEach(rec => { %>
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/70 hover:bg-slate-100/60 transition-colors">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-200/60">
+                    <div class="flex items-center space-x-2">
+                      <span class="font-bold text-xs text-slate-900">
+                        <%= new Date(rec.tglKunjungan).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) %>
+                      </span>
+                      <span class="text-slate-400">•</span>
+                      <span class="font-mono text-xs text-slate-500">Pkl <%= rec.jamMasuk %> WIB</span>
+                    </div>
+
+                    <div>
+                      <% if (rec.status === 'KEMBALI_KELAS') { %>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Kembali Kelas</span>
+                      <% } else if (rec.status === 'DIRAWAT') { %>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">Dirawat di UKS</span>
+                      <% } else if (rec.status === 'PULANG') { %>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800">Izin Pulang</span>
+                      <% } else if (rec.status === 'DIRUJUK') { %>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800">Dirujuk Puskesmas</span>
+                      <% } %>
+                    </div>
+                  </div>
+
+                  <div class="mt-2.5 text-xs text-slate-700 space-y-1">
+                    <div><strong>Keluhan:</strong> <%= rec.keluhan %></div>
+                    <div><strong>Pertolongan Pertama:</strong> <%= rec.tindakan %></div>
+                    <% if (rec.prescriptions && rec.prescriptions.length > 0) { %>
+                      <div class="flex items-center space-x-1 pt-1">
+                        <strong class="text-teal-800">Obat:</strong>
+                        <% rec.prescriptions.forEach(p => { %>
+                          <span class="inline-block bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded text-[10px] font-medium mr-1">
+                            <%= p.medicine.namaObat %> (<%= p.jumlah %> <%= p.medicine.satuan %>)
+                          </span>
+                        <% }) %>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="py-8 text-center text-slate-400 text-xs">
+                Belum ada rekam medis tersimpan.
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+</div>

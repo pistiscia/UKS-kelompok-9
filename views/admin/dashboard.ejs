@@ -1,0 +1,362 @@
+<%- include('../partials/header') %>
+
+<div class="flex min-h-screen">
+  <!-- Sidebar -->
+  <%- include('../partials/sidebar') %>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <%- include('../partials/navbar') %>
+
+    <main class="flex-1 p-6 md:p-8 space-y-8 max-w-7xl w-full mx-auto">
+      
+      <!-- Page Header & Welcome Banner -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <span class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-100 text-purple-800">
+            <i class="fa-solid fa-crown text-[10px]"></i>
+            <span>Portal Manajemen & Pembina UKS</span>
+          </span>
+          <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 mt-2">
+            Dashboard Analitik & Monitoring UKS
+          </h1>
+          <p class="text-sm text-slate-500 mt-0.5">
+            Pantau inventaris obat, keselamatan siswa, dan tren keluhan kesehatan sekolah secara real-time.
+          </p>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <a href="/admin/medicines" class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-sm shadow-brand-600/30 transition-all">
+            <i class="fa-solid fa-box-archive"></i>
+            <span>Kelola Obat P3K</span>
+          </a>
+          <a href="/petugas/laporan-bulanan" class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm transition-all">
+            <i class="fa-solid fa-file-lines"></i>
+            <span>Rekap Bulanan</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Flash Notification -->
+      <%- include('../partials/alerts') %>
+
+      <!-- Alert Banner jika ada obat kadaluarsa atau stok menipis -->
+      <% if (expiredCount > 0 || lowStockCount > 0) { %>
+        <div class="p-4 bg-gradient-to-r from-amber-50 to-rose-50 border border-amber-200/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+          <div class="flex items-center space-x-3.5">
+            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg shadow-sm flex-shrink-0">
+              <i class="fa-solid fa-bell animate-bounce"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">Peringatan Logistik Medis UKS</h3>
+              <p class="text-xs text-slate-600 mt-0.5">
+                Ditemukan <strong class="text-rose-600"><%= expiredCount %> obat kadaluarsa</strong> dan <strong class="text-amber-600"><%= lowStockCount %> obat di bawah ambang batas minimal stok</strong>. Segera lakukan penyesuaian atau restock!
+              </p>
+            </div>
+          </div>
+          <a href="/admin/monitoring" class="px-4 py-2 rounded-xl text-xs font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 transition-colors whitespace-nowrap">
+            Lihat Monitoring <i class="fa-solid fa-arrow-right ml-1"></i>
+          </a>
+        </div>
+      <% } %>
+
+      <!-- 4 KPI Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Card 1: Total Obat -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Master Obat</p>
+            <h3 class="text-3xl font-extrabold text-slate-800 mt-1"><%= totalMedicines %></h3>
+            <p class="text-xs text-slate-500 mt-1">Item dalam inventaris P3K</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-pills"></i>
+          </div>
+        </div>
+
+        <!-- Card 2: Stok Kritis -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Stok Kritis / Menipis</p>
+            <h3 class="text-3xl font-extrabold <%= lowStockCount > 0 ? 'text-amber-600' : 'text-slate-800' %> mt-1"><%= lowStockCount %></h3>
+            <p class="text-xs text-slate-500 mt-1">Di bawah ambang minimal</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-boxes-stacked"></i>
+          </div>
+        </div>
+
+        <!-- Card 3: Mendekati / Kadaluarsa -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Perhatian Kadaluarsa</p>
+            <h3 class="text-3xl font-extrabold <%= (expiredCount + expiringCount) > 0 ? 'text-rose-600' : 'text-slate-800' %> mt-1"><%= expiredCount + expiringCount %></h3>
+            <p class="text-xs text-slate-500 mt-1"><%= expiredCount %> Lewat / <%= expiringCount %> < 60 hari</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+        </div>
+
+        <!-- Card 4: Kunjungan Bulan Ini -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Kunjungan Bulan Ini</p>
+            <h3 class="text-3xl font-extrabold text-brand-600 mt-1"><%= monthlyVisits %></h3>
+            <p class="text-xs text-slate-500 mt-1">Total kumulatif: <%= totalVisits %> siswa</p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-hospital-user"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics Charts Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Chart 1: Tren Keluhan Siswa -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                <i class="fa-solid fa-chart-column text-brand-600"></i>
+                <span>Analitik Tren Keluhan Penyakit Siswa</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">Statistik gejala dan diagnosis umum yang paling sering dikeluhkan</p>
+            </div>
+            <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 rounded-lg text-slate-600">Semua Data</span>
+          </div>
+          <div class="h-64 relative">
+            <canvas id="complaintsChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Distribusi Status Penanganan -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="mb-4">
+            <h3 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+              <i class="fa-solid fa-chart-pie text-brand-600"></i>
+              <span>Status Penanganan Siswa</span>
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">Tindakan medis terhadap siswa sakit</p>
+          </div>
+          <div class="h-64 relative flex items-center justify-center">
+            <canvas id="statusChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kunjungan Terbaru & Daftar Obat Kritis -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Table: 5 Kunjungan Terakhir -->
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <h3 class="text-base font-bold text-slate-800">Kunjungan Siswa Terkini</h3>
+              <p class="text-xs text-slate-500">Rekam medis masuk UKS terbaru</p>
+            </div>
+            <a href="/petugas/dashboard" class="text-xs font-bold text-brand-600 hover:text-brand-700">
+              Lihat Semua <i class="fa-solid fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="px-5 py-3">Siswa / Kelas</th>
+                  <th class="px-5 py-3">Waktu Masuk</th>
+                  <th class="px-5 py-3">Keluhan & Suhu</th>
+                  <th class="px-5 py-3">Obat Diberikan</th>
+                  <th class="px-5 py-3 text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <% if (recentVisits && recentVisits.length > 0) { %>
+                  <% recentVisits.forEach(visit => { %>
+                    <tr class="hover:bg-slate-50/70 transition-colors">
+                      <td class="px-5 py-3.5">
+                        <div class="font-bold text-slate-800"><%= visit.student.nama %></div>
+                        <div class="text-[11px] text-slate-500"><%= visit.student.kelas || 'Siswa' %> • NISN: <%= visit.student.nisn || '-' %></div>
+                      </td>
+                      <td class="px-5 py-3.5 text-slate-600 whitespace-nowrap">
+                        <div><%= new Date(visit.tglKunjungan).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) %></div>
+                        <div class="font-mono text-[11px] text-slate-400">Pkl <%= visit.jamMasuk %></div>
+                      </td>
+                      <td class="px-5 py-3.5">
+                        <div class="text-slate-800 font-medium line-clamp-1"><%= visit.keluhan %></div>
+                        <div class="text-[11px] font-semibold mt-0.5 <%= visit.suhuTubuh >= 37.5 ? 'text-rose-600' : 'text-emerald-600' %>">
+                          <i class="fa-solid fa-temperature-half mr-0.5"></i> <%= visit.suhuTubuh %>°C
+                        </div>
+                      </td>
+                      <td class="px-5 py-3.5 text-slate-600">
+                        <% if (visit.prescriptions && visit.prescriptions.length > 0) { %>
+                          <% visit.prescriptions.forEach(p => { %>
+                            <span class="inline-block bg-teal-50 text-teal-700 border border-teal-200 px-2 py-0.5 rounded text-[10px] font-medium mr-1">
+                              <%= p.medicine.namaObat %> (<%= p.jumlah %>)
+                            </span>
+                          <% }) %>
+                        <% } else { %>
+                          <span class="text-slate-400 italic text-[11px]">- Tanpa obat -</span>
+                        <% } %>
+                      </td>
+                      <td class="px-5 py-3.5 text-right whitespace-nowrap">
+                        <% if (visit.status === 'KEMBALI_KELAS') { %>
+                          <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                            Kembali Kelas
+                          </span>
+                        <% } else if (visit.status === 'DIRAWAT') { %>
+                          <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                            Dirawat di UKS
+                          </span>
+                        <% } else if (visit.status === 'PULANG') { %>
+                          <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">
+                            Izin Pulang
+                          </span>
+                        <% } else if (visit.status === 'DIRUJUK') { %>
+                          <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">
+                            Dirujuk Puskesmas
+                          </span>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5" class="px-5 py-8 text-center text-slate-400">Belum ada catatan kunjungan rekam medis.</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Widget: Logistik Obat Perlu Perhatian -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                <i class="fa-solid fa-box-open text-amber-500"></i>
+                <span>Perhatian Stok & Exp</span>
+              </h3>
+              <a href="/admin/monitoring" class="text-xs font-bold text-brand-600 hover:text-brand-700">Semua</a>
+            </div>
+
+            <div class="space-y-3">
+              <% if (criticalMedicines && criticalMedicines.length > 0) { %>
+                <% criticalMedicines.forEach(m => { %>
+                  <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/60 flex items-center justify-between">
+                    <div>
+                      <h4 class="font-bold text-slate-800 text-xs"><%= m.namaObat %></h4>
+                      <div class="flex items-center space-x-2 text-[11px] text-slate-500 mt-0.5">
+                        <span>Stok: <strong class="<%= m.stok <= m.minStok ? 'text-rose-600' : 'text-slate-700' %>"><%= m.stok %> <%= m.satuan %></strong></span>
+                        <span>•</span>
+                        <span>Exp: <%= new Date(m.tglKadaluarsa).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' }) %></span>
+                      </div>
+                    </div>
+                    <% if (m.stok <= m.minStok) { %>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700">Kritis</span>
+                    <% } else { %>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700">Waspada</span>
+                    <% } %>
+                  </div>
+                <% }) %>
+              <% } else { %>
+                <div class="p-6 text-center text-slate-400 text-xs">
+                  <i class="fa-solid fa-circle-check text-emerald-500 text-2xl mb-1"></i>
+                  <p>Semua stok obat dalam kondisi aman!</p>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-100">
+            <a href="/admin/medicines" class="w-full flex items-center justify-center space-x-2 py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors">
+              <i class="fa-solid fa-plus-circle"></i>
+              <span>Tambah / Restock Obat</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+</div>
+
+<!-- Chart.js Setup Scripts -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Chart Keluhan
+    const complaintCtx = document.getElementById('complaintsChart');
+    if (complaintCtx) {
+      new Chart(complaintCtx, {
+        type: 'bar',
+        data: {
+          labels: <%- JSON.stringify(chartData.complaintLabels) %>,
+          datasets: [{
+            label: 'Jumlah Kunjungan Siswa',
+            data: <%- JSON.stringify(chartData.complaintValues) %>,
+            backgroundColor: [
+              'rgba(244, 63, 94, 0.8)',
+              'rgba(245, 158, 11, 0.8)',
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(59, 130, 246, 0.8)',
+              'rgba(168, 85, 247, 0.8)',
+              'rgba(20, 184, 166, 0.8)',
+              'rgba(148, 163, 184, 0.8)',
+            ],
+            borderRadius: 8,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1 }
+            }
+          }
+        }
+      });
+    }
+
+    // 2. Chart Status Penanganan
+    const statusCtx = document.getElementById('statusChart');
+    if (statusCtx) {
+      new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+          labels: <%- JSON.stringify(chartData.statusLabels) %>,
+          datasets: [{
+            data: <%- JSON.stringify(chartData.statusValues) %>,
+            backgroundColor: [
+              '#10b981', // Kembali Kelas (Green)
+              '#f59e0b', // Dirawat (Yellow)
+              '#f43f5e', // Pulang (Red)
+              '#a855f7', // Dirujuk (Purple)
+            ],
+            borderWidth: 2,
+            borderColor: '#ffffff',
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { boxWidth: 12, font: { size: 10 } }
+            }
+          }
+        }
+      });
+    }
+  });
+</script>

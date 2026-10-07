@@ -1,0 +1,164 @@
+<%- include('../partials/header') %>
+
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-slate-50 to-teal-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
+    <!-- Medical Brand Logo -->
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-500 text-white shadow-lg shadow-brand-500/30 mb-4 ring-8 ring-white">
+      <i class="fa-solid fa-hospital-user text-3xl"></i>
+    </div>
+    <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">E-UKS Sekolah</h2>
+    <p class="mt-2 text-sm text-slate-600">
+      Sistem Informasi Usaha Kesehatan Sekolah & Rekam Medis Digital
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
+    <div class="bg-white py-8 px-6 shadow-xl shadow-slate-200/50 rounded-2xl border border-slate-100 sm:px-10">
+      
+      <!-- Flash Alert Component -->
+      <%- include('../partials/alerts') %>
+
+      <!-- Form Login -->
+      <form action="/auth/login" method="POST" class="space-y-5">
+        <div>
+          <label for="username" class="block text-xs font-bold uppercase tracking-wider text-slate-700">Username</label>
+          <div class="mt-1 relative rounded-xl shadow-sm">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <i class="fa-solid fa-user text-sm"></i>
+            </div>
+            <input
+              type="text"
+              name="username"
+              id="username"
+              required
+              class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-900 placeholder-slate-400"
+              placeholder="Masukkan username Anda..."
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-700">Kata Sandi</label>
+          <div class="mt-1 relative rounded-xl shadow-sm">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <i class="fa-solid fa-lock text-sm"></i>
+            </div>
+            <input
+              type="password"
+              name="password"
+              id="password"
+              required
+              class="block w-full pl-10 pr-10 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-900 placeholder-slate-400"
+              placeholder="Masukkan kata sandi..."
+            />
+            <button
+              type="button"
+              onclick="togglePasswordVisibility()"
+              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
+            >
+              <i id="password-toggle-icon" class="fa-regular fa-eye text-sm"></i>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <button
+            type="submit"
+            class="w-full flex justify-center items-center space-x-2 py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors shadow-brand-500/25"
+          >
+            <span>Masuk ke Sistem UKS</span>
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+          </button>
+        </div>
+      </form>
+
+      <!-- Quick Switch Demo Section (Standar Uji Coba UKK) -->
+      <div class="mt-8 pt-6 border-t border-slate-200/80">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Quick Demo Switch (1-Klik)
+          </span>
+          <span class="text-[10px] text-slate-400">Klik untuk langsung login</span>
+        </div>
+
+        <div class="grid grid-cols-1 gap-2.5">
+          <!-- Admin UKS -->
+          <a
+            href="/auth/quick-login?role=admin"
+            class="group flex items-center justify-between p-3 rounded-xl border border-purple-100 bg-purple-50/60 hover:bg-purple-100/80 transition-all text-left"
+          >
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center text-xs font-bold">
+                <i class="fa-solid fa-crown"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-purple-950">1. Admin UKS (Pembina)</p>
+                <p class="text-[11px] text-purple-700">User: <code class="bg-purple-150 px-1 py-0.5 rounded font-mono">adminuks</code> | Inventaris & Analitik</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-arrow-right text-purple-400 group-hover:text-purple-700 group-hover:translate-x-1 transition-all text-xs"></i>
+          </a>
+
+          <!-- Petugas UKS -->
+          <a
+            href="/auth/quick-login?role=petugas"
+            class="group flex items-center justify-between p-3 rounded-xl border border-teal-100 bg-teal-50/60 hover:bg-teal-100/80 transition-all text-left"
+          >
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-lg bg-teal-600 text-white flex items-center justify-center text-xs font-bold">
+                <i class="fa-solid fa-user-doctor"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-teal-950">2. Petugas UKS / PMR</p>
+                <p class="text-[11px] text-teal-700">User: <code class="bg-teal-150 px-1 py-0.5 rounded font-mono">petugasuks</code> | Registrasi & Resep Obat</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-arrow-right text-teal-400 group-hover:text-teal-700 group-hover:translate-x-1 transition-all text-xs"></i>
+          </a>
+
+          <!-- Siswa -->
+          <a
+            href="/auth/quick-login?role=siswa"
+            class="group flex items-center justify-between p-3 rounded-xl border border-blue-100 bg-blue-50/60 hover:bg-blue-100/80 transition-all text-left"
+          >
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold">
+                <i class="fa-solid fa-graduation-cap"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-blue-950">3. Siswa (Pasien)</p>
+                <p class="text-[11px] text-blue-700">User: <code class="bg-blue-150 px-1 py-0.5 rounded font-mono">siswa</code> | Rekam Medis & Izin Pulang</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-arrow-right text-blue-400 group-hover:text-blue-700 group-hover:translate-x-1 transition-all text-xs"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Info Standar Operasional -->
+    <div class="mt-6 text-center text-xs text-slate-500">
+      <p>Kata sandi default semua akun demo: <span class="font-mono font-bold text-slate-700">password123</span></p>
+      <p class="mt-1">Penerapan Standar UKK & Layanan Kesehatan Sekolah Berbasis RBAC</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('password');
+    const toggleIcon = document.getElementById('password-toggle-icon');
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      toggleIcon.classList.remove('fa-eye');
+      toggleIcon.classList.add('fa-eye-slash');
+    } else {
+      passwordInput.type = 'password';
+      toggleIcon.classList.remove('fa-eye-slash');
+      toggleIcon.classList.add('fa-eye');
+    }
+  }
+</script>
+
+<%- include('../partials/footer') %>

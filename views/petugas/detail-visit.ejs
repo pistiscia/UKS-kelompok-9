@@ -1,0 +1,246 @@
+<%- include('../partials/header') %>
+
+<div class="flex min-h-screen">
+  <%- include('../partials/sidebar') %>
+
+  <div class="flex-1 flex flex-col min-w-0">
+    <%- include('../partials/navbar') %>
+
+    <main class="flex-1 p-6 md:p-8 space-y-6 max-w-5xl w-full mx-auto">
+      
+      <!-- Top Action Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center space-x-3">
+          <a href="/petugas/dashboard" class="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-arrow-left"></i>
+          </a>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h1 class="text-2xl font-extrabold text-slate-900">Rekam Medis #<%= record.id %></h1>
+              <% if (record.status === 'KEMBALI_KELAS') { %>
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">Kembali ke Kelas</span>
+              <% } else if (record.status === 'DIRAWAT') { %>
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 animate-pulse">Sedang Dirawat di Bed</span>
+              <% } else if (record.status === 'PULANG') { %>
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800">Izin Pulang</span>
+              <% } else if (record.status === 'DIRUJUK') { %>
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800">Dirujuk Puskesmas</span>
+              <% } %>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">Waktu Kunjungan: <%= new Date(record.tglKunjungan).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) %> • Pkl <%= record.jamMasuk %> WIB</p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <% if (record.noSurat) { %>
+            <a href="/petugas/kunjungan/<%= record.id %>/surat" class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 shadow-md shadow-purple-600/30 transition-all">
+              <i class="fa-solid fa-print"></i>
+              <span>Cetak Surat Izin / Rujukan</span>
+            </a>
+          <% } %>
+        </div>
+      </div>
+
+      <%- include('../partials/alerts') %>
+
+      <!-- Grid 2 Kolom: Data Pasien & Hasil Pemeriksaan -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Kolom Kiri: Informasi Siswa (1/3) -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+          <div class="flex items-center space-x-3 pb-3 border-b border-slate-100">
+            <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-lg">
+              <i class="fa-solid fa-user-graduate"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm"><%= record.student.nama %></h3>
+              <p class="text-xs text-slate-500"><%= record.student.kelas || 'Siswa' %> • NISN: <%= record.student.nisn || '-' %></p>
+            </div>
+          </div>
+
+          <div class="space-y-2.5 text-xs">
+            <div class="flex justify-between py-1 border-b border-slate-100">
+              <span class="text-slate-400">Gol. Darah:</span>
+              <span class="font-bold text-red-600"><%= record.student.golonganDarah || '-' %></span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-slate-100">
+              <span class="text-slate-400">Telepon Ortu:</span>
+              <span class="font-semibold text-slate-700"><%= record.student.teleponOrtu || '-' %></span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-slate-100">
+              <span class="text-slate-400">Petugas Medis:</span>
+              <span class="font-semibold text-teal-700"><%= record.petugas.nama %></span>
+            </div>
+          </div>
+
+          <!-- Alert Profil Alergi -->
+          <% const hp = record.student.healthProfile; %>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
+            <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Rekam Medis Siswa:</h4>
+            <div><strong>Riwayat:</strong> <%= (hp && hp.riwayatPenyakit) ? hp.riwayatPenyakit : '-' %></div>
+            <div class="text-rose-600"><strong>Alergi Obat:</strong> <%= (hp && hp.alergiObat) ? hp.alergiObat : 'Tidak ada' %></div>
+            <div><strong>Alergi Makanan:</strong> <%= (hp && hp.alergiMakanan) ? hp.alergiMakanan : 'Tidak ada' %></div>
+            <div class="text-[11px] text-slate-500 pt-1 border-t border-slate-200/60">
+              <strong>Kontak Darurat:</strong> <%= (hp && hp.kontakDarurat) ? hp.kontakDarurat : '-' %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kolom Kanan: Hasil Pemeriksaan, Resep Obat & Status (2/3) -->
+        <div class="md:col-span-2 space-y-6">
+          
+          <!-- Card Pemeriksaan Fisik -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+            <h3 class="text-sm font-bold text-slate-900 pb-2 border-b border-slate-100 flex items-center space-x-2">
+              <i class="fa-solid fa-stethoscope text-teal-600"></i>
+              <span>Hasil Pemeriksaan Fisik & Tanda Vital</span>
+            </h3>
+
+            <div class="grid grid-cols-3 gap-4 p-4 rounded-xl bg-slate-50">
+              <div>
+                <span class="text-[10px] font-bold uppercase text-slate-400">Suhu Tubuh</span>
+                <div class="text-lg font-extrabold <%= record.suhuTubuh >= 37.5 ? 'text-rose-600' : 'text-slate-800' %> mt-0.5">
+                  <%= record.suhuTubuh %> °C
+                </div>
+                <span class="text-[10px] <%= record.suhuTubuh >= 37.5 ? 'text-rose-600 font-bold' : 'text-slate-500' %>">
+                  <%= record.suhuTubuh >= 37.5 ? 'Demam / Panas' : 'Normal' %>
+                </span>
+              </div>
+              <div>
+                <span class="text-[10px] font-bold uppercase text-slate-400">Tekanan Darah</span>
+                <div class="text-lg font-extrabold text-slate-800 mt-0.5">
+                  <%= record.tensi || '-' %>
+                </div>
+                <span class="text-[10px] text-slate-500">mmHg</span>
+              </div>
+              <div>
+                <span class="text-[10px] font-bold uppercase text-slate-400">Durasi Observasi</span>
+                <div class="text-lg font-extrabold text-slate-800 mt-0.5">
+                  <%= record.jamMasuk %> - <%= record.jamKeluar || 'Masih di UKS' %>
+                </div>
+                <span class="text-[10px] text-slate-500">WIB</span>
+              </div>
+            </div>
+
+            <div>
+              <span class="text-xs font-bold uppercase text-slate-400">Keluhan Siswa:</span>
+              <p class="text-sm font-semibold text-slate-800 mt-1 p-3 bg-slate-50 rounded-xl border border-slate-200/60"><%= record.keluhan %></p>
+            </div>
+
+            <div>
+              <span class="text-xs font-bold uppercase text-slate-400">Tindakan Medis Pertolongan Pertama:</span>
+              <p class="text-sm text-slate-700 mt-1 p-3 bg-slate-50 rounded-xl border border-slate-200/60"><%= record.tindakan %></p>
+            </div>
+
+            <!-- Resep Obat yang Diberikan -->
+            <div>
+              <span class="text-xs font-bold uppercase text-slate-400">Pemberian Obat-Obatan P3K:</span>
+              <div class="mt-2 space-y-2">
+                <% if (record.prescriptions && record.prescriptions.length > 0) { %>
+                  <% record.prescriptions.forEach(p => { %>
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-teal-50/60 border border-teal-200/80 text-xs">
+                      <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-pills text-teal-600"></i>
+                        <span class="font-bold text-teal-950"><%= p.medicine.namaObat %></span>
+                        <span class="text-teal-700">(<%= p.medicine.kategori %>)</span>
+                      </div>
+                      <div class="text-right">
+                        <span class="font-extrabold text-teal-900"><%= p.jumlah %> <%= p.medicine.satuan %></span>
+                        <span class="text-[11px] text-teal-700 block">Dosis: <%= p.dosis %></span>
+                      </div>
+                    </div>
+                  <% }) %>
+                <% } else { %>
+                  <p class="text-xs text-slate-400 italic">Tidak ada obat farmasi yang diberikan pada kunjungan ini.</p>
+                <% } %>
+              </div>
+            </div>
+
+            <% if (record.noSurat) { %>
+              <div class="p-4 bg-purple-50 rounded-xl border border-purple-200 text-xs space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-purple-900">Surat Izin / Rujukan Diterbitkan:</span>
+                  <span class="font-mono font-bold text-purple-700"><%= record.noSurat %></span>
+                </div>
+                <% if (record.faskesRujukan) { %>
+                  <div><strong>Tujuan Faskes:</strong> <%= record.faskesRujukan %></div>
+                <% } %>
+                <% if (record.keteranganSurat) { %>
+                  <div class="text-slate-600"><strong>Catatan Surat:</strong> <%= record.keteranganSurat %></div>
+                <% } %>
+              </div>
+            <% } %>
+          </div>
+
+          <!-- Card Form Update Status Kunjungan (Khusus jika masih DIRAWAT atau perlu penyesuaian) -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+            <h3 class="text-sm font-bold text-slate-900 pb-2 border-b border-slate-100 flex items-center space-x-2">
+              <i class="fa-solid fa-pen-to-square text-amber-500"></i>
+              <span>Update Status & Tindak Lanjut Pasien</span>
+            </h3>
+
+            <form action="/petugas/kunjungan/<%= record.id %>/status" method="POST" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase">Perbarui Status Penanganan</label>
+                  <select name="status" class="mt-1 w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs font-bold focus:ring-2 focus:ring-teal-500">
+                    <option value="DIRAWAT" <%= record.status === 'DIRAWAT' ? 'selected' : '' %>>DIRAWAT (Di Tempat Tidur UKS)</option>
+                    <option value="KEMBALI_KELAS" <%= record.status === 'KEMBALI_KELAS' ? 'selected' : '' %>>KEMBALI KE KELAS (Membaik)</option>
+                    <option value="PULANG" <%= record.status === 'PULANG' ? 'selected' : '' %>>IZIN PULANG (Ke Rumah)</option>
+                    <option value="DIRUJUK" <%= record.status === 'DIRUJUK' ? 'selected' : '' %>>DIRUJUK (Ke Puskesmas/RS)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase">Jam Keluar UKS</label>
+                  <input
+                    type="text"
+                    name="jamKeluar"
+                    value="<%= record.jamKeluar || new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) %>"
+                    class="mt-1 w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs font-mono font-bold focus:ring-2 focus:ring-teal-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase">Catatan Tindakan Lanjutan</label>
+                <input
+                  type="text"
+                  name="tindakanLanjutan"
+                  placeholder="Tambahkan evaluasi kondisi sebelum kembali ke kelas..."
+                  class="mt-1 w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+
+              <% if (!record.noSurat) { %>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                  <div class="flex items-center space-x-2">
+                    <input type="checkbox" id="terbitkanSurat" name="terbitkanSurat" class="rounded text-brand-600 focus:ring-brand-500" />
+                    <label for="terbitkanSurat" class="text-xs font-bold text-slate-800 cursor-pointer">
+                      Terbitkan Surat Izin / Rujukan Resmi Sekarang
+                    </label>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+                    <input type="text" name="faskesRujukan" placeholder="Faskes rujukan (jika ada)" class="px-3 py-2 border border-slate-200 rounded-lg text-xs" />
+                    <input type="text" name="keteranganSurat" placeholder="Keterangan surat izin" class="px-3 py-2 border border-slate-200 rounded-lg text-xs" />
+                  </div>
+                </div>
+              <% } %>
+
+              <div class="text-right">
+                <button type="submit" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors">
+                  Simpan Perubahan Status
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+</div>

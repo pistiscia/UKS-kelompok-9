@@ -1,0 +1,34 @@
+<%- include('../partials/header') %>
+
+<div class="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+  <div class="max-w-md w-full bg-white rounded-3xl p-8 border border-slate-200/80 shadow-xl text-center">
+    <div class="w-20 h-20 rounded-2xl bg-rose-50 text-rose-500 mx-auto flex items-center justify-center text-4xl mb-6 shadow-sm border border-rose-100">
+      <i class="fa-solid fa-ban"></i>
+    </div>
+    
+    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-rose-100 text-rose-700 mb-2">
+      HTTP 403 Forbidden
+    </span>
+    
+    <h1 class="text-2xl font-extrabold text-slate-800">Akses Ditolak</h1>
+    <p class="mt-2 text-sm text-slate-600">
+      <%= typeof message !== 'undefined' ? message : 'Role akun Anda tidak memiliki hak wewenang untuk membuka fitur atau rute ini.' %>
+    </p>
+
+    <div class="mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-200 text-left text-xs text-slate-600 space-y-1">
+      <div><strong>Role Anda Saat Ini:</strong> <span class="font-mono text-rose-600"><%= user ? user.role : 'Belum Login' %></span></div>
+      <div><strong>Rute Tujuan:</strong> <span class="font-mono text-slate-800"><%= typeof currentPath !== 'undefined' ? currentPath : '-' %></span></div>
+    </div>
+
+    <div class="mt-6 flex flex-col sm:flex-row gap-3">
+      <a href="/" class="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-700 transition-colors shadow-sm shadow-brand-600/30">
+        Kembali ke Beranda
+      </a>
+      <a href="/auth/login" class="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
+        Ganti Akun
+      </a>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

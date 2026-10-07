@@ -1,0 +1,115 @@
+<%- include('../partials/header') %>
+
+<div class="flex min-h-screen">
+  <%- include('../partials/sidebar') %>
+
+  <div class="flex-1 flex flex-col min-w-0">
+    <%- include('../partials/navbar') %>
+
+    <main class="flex-1 p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
+      
+      <!-- Top Action & Title Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-extrabold text-slate-900">Database Siswa & Rekam Alergi Medis</h1>
+          <p class="text-sm text-slate-500 mt-0.5">
+            Informasi riwayat alergi obat, makanan, dan penyakit bawaan siswa untuk pertolongan pertama yang aman.
+          </p>
+        </div>
+
+        <div class="text-xs text-slate-500 bg-white px-4 py-2 rounded-xl border border-slate-200">
+          Total Terdaftar: <strong class="text-slate-800"><%= students.length %></strong> Siswa
+        </div>
+      </div>
+
+      <%- include('../partials/alerts') %>
+
+      <!-- Table Students & Medical Alerts -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200">
+              <tr>
+                <th class="px-5 py-3.5">Nama Siswa / NISN</th>
+                <th class="px-5 py-3.5">Kelas & Gender</th>
+                <th class="px-5 py-3.5">Gol. Darah</th>
+                <th class="px-5 py-3.5">Penyakit Bawaan</th>
+                <th class="px-5 py-3.5">Alergi Obat (PENTING)</th>
+                <th class="px-5 py-3.5">Kontak Darurat Wali</th>
+                <th class="px-5 py-3.5 text-right">Kunjungan Terakhir</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <% if (students && students.length > 0) { %>
+                <% students.forEach(s => { %>
+                  <% const p = s.healthProfile || {}; %>
+                  <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-5 py-4">
+                      <div class="font-bold text-slate-900 text-sm"><%= s.nama %></div>
+                      <div class="text-[11px] text-slate-400 font-mono">NISN: <%= s.nisn || '-' %></div>
+                    </td>
+                    <td class="px-5 py-4 whitespace-nowrap">
+                      <div class="font-semibold text-slate-700"><%= s.kelas || '-' %></div>
+                      <div class="text-[11px] text-slate-400"><%= s.jenisKelamin === 'L' ? 'Laki-laki' : (s.jenisKelamin === 'P' ? 'Perempuan' : '-') %></div>
+                    </td>
+                    <td class="px-5 py-4">
+                      <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-red-50 text-red-600 font-bold border border-red-200">
+                        <%= s.golonganDarah || '?' %>
+                      </span>
+                    </td>
+                    <td class="px-5 py-4 text-slate-700">
+                      <% if (p.riwayatPenyakit) { %>
+                        <div class="font-medium text-slate-800"><%= p.riwayatPenyakit %></div>
+                      <% } else { %>
+                        <span class="text-slate-400 italic">Tidak ada catatan</span>
+                      <% } %>
+                    </td>
+                    <td class="px-5 py-4">
+                      <% if (p.alergiObat) { %>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                          <i class="fa-solid fa-triangle-exclamation mr-1.5"></i> <%= p.alergiObat %>
+                        </span>
+                      <% } else { %>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700">
+                          Tidak ada
+                        </span>
+                      <% } %>
+                      <% if (p.alergiMakanan) { %>
+                        <div class="text-[10px] text-slate-500 mt-1">
+                          Makanan: <%= p.alergiMakanan %>
+                        </div>
+                      <% } %>
+                    </td>
+                    <td class="px-5 py-4 text-slate-600">
+                      <div class="font-medium text-slate-800"><%= p.kontakDarurat || s.teleponOrtu || '-' %></div>
+                      <div class="text-[10px] text-slate-400">Telepon Darurat</div>
+                    </td>
+                    <td class="px-5 py-4 text-right whitespace-nowrap">
+                      <% if (s.studentRecords && s.studentRecords.length > 0) { %>
+                        <div class="font-medium text-slate-800">
+                          <%= new Date(s.studentRecords[0].tglKunjungan).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) %>
+                        </div>
+                        <div class="text-[10px] text-brand-600 font-semibold">
+                          <%= s.studentRecords[0].status %>
+                        </div>
+                      <% } else { %>
+                        <span class="text-slate-400 italic text-[11px]">Belum pernah</span>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="7" class="px-5 py-10 text-center text-slate-400">Belum ada data siswa terdaftar.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+</div>
